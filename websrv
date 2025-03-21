@@ -1,10 +1,12 @@
-FROM redhat
-RUN apt update 
-RUN apt install –y apache2 
-RUN apt install –y apache2-utils 
-RUN apt clean 
+FROM registry.access.redhat.com/ubi8/ubi
+RUN yum install -y httpd && yum clean all 
+WORKDIR /var/www/html
+COPY index.html  
 EXPOSE 80
-CMD [“apache2ctl”, “-D”, “FOREGROUND”]
+CMD [“/usr/sbin/httpd”, “-D”, “FOREGROUND”]
+
+
+
 
 
 
