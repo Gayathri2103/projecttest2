@@ -49,13 +49,29 @@ fi
 
 # Run the new container
 echo "🚀 Running new container: $CONTAINER_NAME on port $PORT"
-docker run -d -p "$PORT":80 --name "$CONTAINER_NAME" "$IMAGE_NAME" || { echo "❌ ERROR: Docker container failed to start"; exit 1; }
+docker run -d -p "$PORT":80 --name "$CONTAINER_NAME" "$IMAGE_NAME"
 
-# Ensure Apache web server runs inside the container
-echo "🌐 Starting Apache web server inside the container..."
-docker exec "$CONTAINER_NAME" bash -c "apachectl -D FOREGROUND" || { echo "❌ ERROR: Apache failed to start"; exit 1; }
+# Wait for a few seconds to let the container start
+sleep 5
+
+# Check if the container is actually running
+if ! docker ps --format "{{.Names}}" | grep -q "^$CONTAINER_NAME$"; then
+    echo "❌ ERROR: Container failed to start!"
+    docker logs "$CONTAINER_NAME"  # Show logs for debugging
+    exit 1
+fi
 
 # Display running containers
 echo "📋 Listing running Docker containers..."
 docker ps
+
+# Test if Apache is running inside the container
+echo "🌐 Checking if Apache is running inside the container..."
+if docker exec "$CONTAINER_NAME" pgrep apache2 > /dev/null; then
+    echo "✅ Apache is running successfully inside the container!"
+else
+    echo "❌ ERROR: Apache is NOT running inside the container!"
+    docker logs "$CONTAINER_NAME"  # Show logs for debugging
+    exit 1
+fi
 
