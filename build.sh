@@ -2,11 +2,11 @@
 set -e
 
 # Variables
-REPO_URL="https://github.com/Gayathri2103/latesttest.git"
+REPO_URL="https://github.com/Gayathri2103/projecttest2.git"
 IMAGE_NAME="webserver_image"
 CONTAINER_NAME="new-websrv"
 PORT=9090
-WORKSPACE="/var/lib/jenkins/workspace/projecttest1"
+WORKSPACE="/var/lib/jenkins/workspace/projecttest2"
 TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
 
 echo "$TIMESTAMP: 🔄 Setting up Jenkins workspace..."
