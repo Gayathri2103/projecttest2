@@ -1,9 +1,9 @@
 #!/bin/bash
-set -e  # Exit on any error
+set -e  # Exit immediately if a command exits with a non-zero status
 
-# Set variables
+# Variables
 REPO_URL="https://github.com/Gayathri2103/latesttest.git"
-IMAGE_NAME="httpd"
+IMAGE_NAME="webserver_image"
 CONTAINER_NAME="new-websrv"
 PORT=9090
 WORKSPACE="/var/lib/jenkins/workspace/projecttest1"
@@ -19,7 +19,6 @@ cd "$WORKSPACE" || { echo "❌ ERROR: Failed to access Jenkins workspace"; exit 
 # Clone or update repository
 if [ -d "$WORKSPACE/.git" ]; then
     echo "🔄 Repository exists. Pulling latest changes..."
-    git fetch origin master
     git reset --hard origin/master
     git pull origin master || { echo "❌ ERROR: Failed to pull repository"; exit 1; }
 else
@@ -41,7 +40,7 @@ fi
 echo "🐳 Building Docker image..."
 docker build -f "$DOCKERFILE_PATH" -t "$IMAGE_NAME" "$WORKSPACE" || { echo "❌ ERROR: Docker build failed"; exit 1; }
 
-# Stop and remove any existing container
+# Stop and remove existing container if it exists
 if docker ps -a --format "{{.Names}}" | grep -q "^$CONTAINER_NAME$"; then
     echo "🛑 Stopping and removing existing container: $CONTAINER_NAME"
     docker stop "$CONTAINER_NAME" || true
@@ -51,6 +50,10 @@ fi
 # Run the new container
 echo "🚀 Running new container: $CONTAINER_NAME on port $PORT"
 docker run -d -p "$PORT":80 --name "$CONTAINER_NAME" "$IMAGE_NAME" || { echo "❌ ERROR: Docker container failed to start"; exit 1; }
+
+# Ensure Apache web server runs inside the container
+echo "🌐 Starting Apache web server inside the container..."
+docker exec "$CONTAINER_NAME" bash -c "apachectl -D FOREGROUND" || { echo "❌ ERROR: Apache failed to start"; exit 1; }
 
 # Display running containers
 echo "📋 Listing running Docker containers..."
