@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e  # Exit if any command fails
 
 # Set variables
 REPO_URL="https://github.com/Gayathri2103/latesttest.git"
@@ -13,14 +14,15 @@ mkdir -p "$WORKSPACE"
 # Navigate to Jenkins workspace
 cd "$WORKSPACE" || { echo "❌ ERROR: Failed to access Jenkins workspace"; exit 1; }
 
-# Clean workspace and clone fresh repository
+# Check if repository is already cloned
 if [ -d "$WORKSPACE/.git" ]; then
-    echo "🧹 Cleaning existing repository..."
-    rm -rf "$WORKSPACE"/*
+    echo "🔄 Repository exists. Pulling latest changes..."
+    git reset --hard origin/master
+    git pull origin master
+else
+    echo "📥 Cloning repository from $REPO_URL"
+    git clone "$REPO_URL" "$WORKSPACE" || { echo "❌ ERROR: Failed to clone repository"; exit 1; }
 fi
-
-echo "📥 Cloning repository from $REPO_URL"
-git clone "$REPO_URL" "$WORKSPACE" || { echo "❌ ERROR: Failed to clone repository"; exit 1; }
 
 # Check if Dockerfile exists
 if [ ! -f "$WORKSPACE/Dockerfile" ]; then
