@@ -14,8 +14,10 @@ mkdir -p "$WORKSPACE"
 cd "$WORKSPACE" || { echo "❌ ERROR: Failed to access Jenkins workspace"; exit 1; }
 
 # Clean workspace and clone fresh repository
-echo "🧹 Cleaning workspace..."
-rm -rf "$WORKSPACE"/*
+if [ -d "$WORKSPACE/.git" ]; then
+    echo "🧹 Cleaning existing repository..."
+    rm -rf "$WORKSPACE"/*
+fi
 
 echo "📥 Cloning repository from $REPO_URL"
 git clone "$REPO_URL" "$WORKSPACE" || { echo "❌ ERROR: Failed to clone repository"; exit 1; }
