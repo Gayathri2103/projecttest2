@@ -7,6 +7,9 @@ USER root
 # Install Apache (httpd)
 RUN yum install -y httpd && yum clean all
 
+# Ensure Apache directory exists
+RUN mkdir -p /var/www/html
+
 # Set working directory
 WORKDIR /var/www/html
 
@@ -19,9 +22,6 @@ RUN chown -R 1001:0 /var/www/html && chmod -R 755 /var/www/html
 # Expose port 80 for web traffic
 EXPOSE 80
 
-# Switch to Apache’s default non-root user for security
-USER 1001
-
-# Start Apache in the foreground
+# Start Apache in the foreground (keep root to avoid permission issues)
 CMD ["httpd", "-D", "FOREGROUND"]
 
