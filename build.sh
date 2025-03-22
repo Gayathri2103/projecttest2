@@ -40,17 +40,17 @@ fi
 # Choose Docker or Podman
 if [ "$USE_PODMAN" = true ]; then
     echo "🐳 Building Docker image using Podman..."
-    podman build --privileged --security-opt label=disable -f "$DOCKERFILE_PATH" -t "$IMAGE_NAME" "$WORKSPACE" || { echo "❌ ERROR: Podman build failed"; exit 1; }
+    podman build --security-opt label=disable -f "$DOCKERFILE_PATH" -t "$IMAGE_NAME" "$WORKSPACE" || { echo "❌ ERROR: Podman build failed"; exit 1; }
 else
     echo "🐳 Building Docker image using Docker..."
     docker build -f "$DOCKERFILE_PATH" -t "$IMAGE_NAME" "$WORKSPACE" || { echo "❌ ERROR: Docker build failed"; exit 1; }
 fi
 
 # Stop and remove any existing container
-if docker ps -q --filter "name=$CONTAINER_NAME" | grep -q .; then
+if podman ps -q --filter "name=$CONTAINER_NAME" | grep -q .; then
     echo "🛑 Stopping existing container: $CONTAINER_NAME"
-    docker stop "$CONTAINER_NAME"
-    docker rm "$CONTAINER_NAME"
+    podman stop "$CONTAINER_NAME"
+    podman rm "$CONTAINER_NAME"
 fi
 
 # Run the new container using the selected runtime
@@ -64,5 +64,5 @@ fi
 
 # Display running containers
 echo "📋 Listing running containers..."
-docker ps || podman ps  # Show containers for both Docker and Podman
+podman ps || docker ps  # Show running containers for both Podman and Docker
 
