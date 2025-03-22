@@ -13,12 +13,15 @@ WORKDIR /var/www/html
 # Copy website files from the build context to the Apache directory
 COPY . /var/www/html/
 
+# Set correct ownership and permissions
+RUN chown -R 1001:0 /var/www/html && chmod -R 755 /var/www/html
+
 # Expose port 80 for web traffic
 EXPOSE 80
 
-# Switch back to a non-root user (optional for security)
+# Switch to Apache’s default non-root user for security
 USER 1001
 
 # Start Apache in the foreground
-CMD ["/usr/sbin/httpd", "-D", "FOREGROUND"]
+CMD ["httpd", "-D", "FOREGROUND"]
 
