@@ -24,15 +24,19 @@ else
     git clone "$REPO_URL" "$WORKSPACE" || { echo "❌ ERROR: Failed to clone repository"; exit 1; }
 fi
 
-# Check if Dockerfile exists
-if [ ! -f "$WORKSPACE/Dockerfile" ]; then
+# Check if Dockerfile exists (root or inside "docker" folder)
+if [ -f "$WORKSPACE/Dockerfile" ]; then
+    DOCKERFILE_PATH="$WORKSPACE/Dockerfile"
+elif [ -f "$WORKSPACE/docker/Dockerfile" ]; then
+    DOCKERFILE_PATH="$WORKSPACE/docker/Dockerfile"
+else
     echo "❌ ERROR: Dockerfile not found in repository!"
     exit 1
 fi
 
-# Build the Docker image
-echo "🐳 Building Docker image: $IMAGE_NAME"
-docker build -t "$IMAGE_NAME" "$WORKSPACE" || { echo "❌ ERROR: Docker build failed"; exit 1; }
+# Build the Docker image using the detected Dockerfile
+echo "🐳 Building Docker image: $IMAGE_NAME using $DOCKERFILE_PATH"
+docker build -f "$DOCKERFILE_PATH" -t "$IMAGE_NAME" "$WORKSPACE" || { echo "❌ ERROR: Docker build failed"; exit 1; }
 
 # Stop and remove any existing container
 if docker ps -q --filter "name=$CONTAINER_NAME" | grep -q .; then
