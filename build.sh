@@ -5,7 +5,7 @@ REPO_URL="https://github.com/Gayathri2103/latesttest.git"
 IMAGE_NAME="httpd"
 CONTAINER_NAME="new-websrv"
 PORT=9090
-WORKSPACE="/var/lib/jenkins/workspace/latesttest"
+WORKSPACE="/var/lib/jenkins/workspace/projecttest1"
 
 # Navigate to Jenkins workspace
 cd "$WORKSPACE" || { echo "❌ ERROR: Failed to access Jenkins workspace"; exit 1; }
