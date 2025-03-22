@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e  # Exit immediately if a command exits with a non-zero status
+set -e  # Exit on any error
 
 # Variables
 REPO_URL="https://github.com/Gayathri2103/latesttest.git"
@@ -18,7 +18,8 @@ cd "$WORKSPACE" || { echo "❌ ERROR: Failed to access Jenkins workspace"; exit 
 
 # Clone or update repository
 if [ -d "$WORKSPACE/.git" ]; then
-    echo "🔄 Repository exists. Pulling latest changes..."
+    echo "🔄 Repository exists. Fetching latest changes..."
+    git fetch origin
     git reset --hard origin/master
     git pull origin master || { echo "❌ ERROR: Failed to pull repository"; exit 1; }
 else
@@ -54,7 +55,7 @@ docker run -d -p "$PORT":80 --name "$CONTAINER_NAME" "$IMAGE_NAME"
 # Wait for a few seconds to let the container start
 sleep 5
 
-# Check if the container is actually running
+# Check if the container is running
 if ! docker ps --format "{{.Names}}" | grep -q "^$CONTAINER_NAME$"; then
     echo "❌ ERROR: Container failed to start!"
     docker logs "$CONTAINER_NAME"  # Show logs for debugging
@@ -65,12 +66,12 @@ fi
 echo "📋 Listing running Docker containers..."
 docker ps
 
-# Test if Apache is running inside the container
-echo "🌐 Checking if Apache is running inside the container..."
-if docker exec "$CONTAINER_NAME" pgrep apache2 > /dev/null; then
-    echo "✅ Apache is running successfully inside the container!"
+# Test if Apache (httpd) is running inside the container
+echo "🌐 Checking if Apache (httpd) is running inside the container..."
+if docker exec "$CONTAINER_NAME" pgrep httpd > /dev/null; then
+    echo "✅ Apache (httpd) is running successfully inside the container!"
 else
-    echo "❌ ERROR: Apache is NOT running inside the container!"
+    echo "❌ ERROR: Apache (httpd) is NOT running inside the container!"
     docker logs "$CONTAINER_NAME"  # Show logs for debugging
     exit 1
 fi
