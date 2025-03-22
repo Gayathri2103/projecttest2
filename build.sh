@@ -7,21 +7,28 @@ CONTAINER_NAME="new-websrv"
 PORT=9090
 WORKSPACE="/var/lib/jenkins/workspace/projecttest1"
 
+# Ensure Jenkins workspace exists
+mkdir -p "$WORKSPACE"
+
 # Navigate to Jenkins workspace
 cd "$WORKSPACE" || { echo "❌ ERROR: Failed to access Jenkins workspace"; exit 1; }
 
-# Clone or update the repository
-if [ ! -d "$WORKSPACE/.git" ]; then
-    echo "📥 Cloning repository from $REPO_URL"
-    git clone "$REPO_URL" .
-else
-    echo "🔄 Pulling latest changes from $REPO_URL"
-    git pull origin master  # Change 'master' to 'main' if needed
+# Clean workspace and clone fresh repository
+echo "🧹 Cleaning workspace..."
+rm -rf "$WORKSPACE"/*
+
+echo "📥 Cloning repository from $REPO_URL"
+git clone "$REPO_URL" "$WORKSPACE" || { echo "❌ ERROR: Failed to clone repository"; exit 1; }
+
+# Check if Dockerfile exists
+if [ ! -f "$WORKSPACE/Dockerfile" ]; then
+    echo "❌ ERROR: Dockerfile not found in repository!"
+    exit 1
 fi
 
 # Build the Docker image
 echo "🐳 Building Docker image: $IMAGE_NAME"
-docker build -t "$IMAGE_NAME" . || { echo "❌ ERROR: Docker build failed"; exit 1; }
+docker build -t "$IMAGE_NAME" "$WORKSPACE" || { echo "❌ ERROR: Docker build failed"; exit 1; }
 
 # Stop and remove any existing container
 if docker ps -q --filter "name=$CONTAINER_NAME" | grep -q .; then
